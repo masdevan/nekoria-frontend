@@ -52,7 +52,7 @@ export function SearchModal() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 rounded hover:bg-muted/50 transition-colors cursor-pointer"
+        className="p-2 transition-colors cursor-pointer"
         aria-label="Open search"
       >
         <MagnifyingGlassIcon className="w-5 h-5 text-white" />

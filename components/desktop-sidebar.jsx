@@ -98,7 +98,7 @@ export function DesktopSidebar() {
             return (
               <div
                 key={item.label}
-                className={`${baseClasses}`}
+                className={`flex items-center justify-center w-10 h-10 transition-colors !rounded-none hover:!bg-green-900`}
               >
                 <SearchModal />
               </div>
