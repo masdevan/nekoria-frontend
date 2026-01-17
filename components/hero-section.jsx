@@ -118,7 +118,7 @@ export function HeroSection() {
       <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] bg-background overflow-hidden mt-[3.75rem]">
         <div className="absolute inset-0">
           <Skeleton 
-            className="w-full h-full rounded-none" 
+            className="w-full h-full !rounded-none" 
             baseColor="#000000" 
             highlightColor="#111111"
           />
@@ -128,7 +128,7 @@ export function HeroSection() {
             <Skeleton 
               height={48} 
               width="80%" 
-              className="mb-4 rounded-none"
+              className="mb-4 !rounded-none"
               baseColor="#000000" 
               highlightColor="#111111"
             />
@@ -136,21 +136,21 @@ export function HeroSection() {
               <Skeleton 
                 width={80} 
                 height={24}
-                className="rounded-none"
+                className="!rounded-none"
                 baseColor="#000000" 
                 highlightColor="#111111"
               />
               <Skeleton 
                 width={120} 
                 height={24}
-                className="rounded-none"
+                className="!rounded-none"
                 baseColor="#000000" 
                 highlightColor="#111111"
               />
             </div>
             <Skeleton 
               count={3} 
-              className="mb-2 rounded-none"
+              className="mb-2 !rounded-none"
               baseColor="#000000" 
               highlightColor="#111111"
             />
@@ -158,14 +158,14 @@ export function HeroSection() {
               <Skeleton 
                 width={140} 
                 height={48}
-                className="rounded-none"
+                className="!rounded-none"
                 baseColor="#000000" 
                 highlightColor="#111111"
               />
               <Skeleton 
                 width={140} 
                 height={48}
-                className="rounded-none"
+                className="!rounded-none"
                 baseColor="#000000" 
                 highlightColor="#111111"
               />
