@@ -1,1 +1,7 @@
+export * from './auth'
 export * from './anime'
+export * from './chat'
+export * from './comment'
+export * from './genre'
+export * from './studio'
+export * from './bookmark'

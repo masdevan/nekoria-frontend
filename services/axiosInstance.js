@@ -3,9 +3,6 @@ import { getSession } from "next-auth/react"
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 })
 
 let cachedToken = null

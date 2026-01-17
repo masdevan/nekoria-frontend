@@ -30,7 +30,7 @@ export default function BookmarksPage() {
         <div
           className="grid gap-3 sm:gap-4"
           style={{
-            gridTemplateColumns: "repeat(auto-fit, minmax(96px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
           }}
         >
           {bookmarkedVideos.map((video, index) => (
@@ -45,8 +45,6 @@ export default function BookmarksPage() {
           ))}
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }
