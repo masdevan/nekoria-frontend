@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronLeftIcon, ChevronRightIcon, PlayIcon } from "@heroicons/react/24/outline"
 
-export function ContentSection({ title, videos }) {
+export function ContentSection({ title, items }) {
   const scrollRef = useRef(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
@@ -51,8 +51,8 @@ export function ContentSection({ title, videos }) {
   }, [])
 
   return (
-    <section className="px-4 py-4">
-      <div className="flex items-center justify-between mb-4 pr-2">
+    <section className="py-4">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg sm:text-2xl font-bold text-foreground">
           {title}
           <Link
@@ -92,7 +92,7 @@ export function ContentSection({ title, videos }) {
         onTouchEnd={stopDrag}
         onDragStart={(e) => e.preventDefault()}
       >
-        {videos.map((video, i) => {
+        {items.map((video, i) => {
           const slug = video.title
             .toLowerCase()
             .replace(/[^a-z0-9]/g, "-")

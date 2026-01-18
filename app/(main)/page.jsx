@@ -106,12 +106,12 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
-      <div className="pb-12">
+      <div className="pb-12 px-4">
         {sections.map((section, index) => {
           const isLast = index === sections.length - 1
           return (
             <div key={section.id} ref={isLast ? lastSectionRef : null}>
-              <ContentSection title={section.title} videos={section.videos} />
+              <ContentSection title={section.title} items={section.videos} />
             </div>
           )
         })}

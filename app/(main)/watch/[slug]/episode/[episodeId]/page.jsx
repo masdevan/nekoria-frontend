@@ -5,20 +5,12 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { ShareModal } from "@/components/share-modal"
 import { FloatingChat } from "@/components/floating-chat"
-import { AnimeInfo } from "@/components/watch/anime-info"
-import { EpisodesList } from "@/components/watch/episodes-list"
-import { CommentsSection } from "@/components/watch/comments-section"
+import { AnimeInfo } from "@/components/anime-info"
+import { EpisodesList } from "@/components/episodes-list"
+import { CommentsSection } from "@/components/comments-section"
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline"
-import {
-  PlayIcon,
-  ShareIcon,
-  ArrowLeftIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@heroicons/react/24/outline"
+import { PlayIcon, ShareIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 import { episodeAPI } from "@/services/index"
-import Skeleton from "react-loading-skeleton"
-import "react-loading-skeleton/dist/skeleton.css"
 
 export default function EpisodePage() {
   const params = useParams()
@@ -28,44 +20,27 @@ export default function EpisodePage() {
   const [episodeData, setEpisodeData] = useState(null)
   const [animeData, setAnimeData] = useState(null)
   const [otherEpisodes, setOtherEpisodes] = useState([])
-  const [loading, setLoading] = useState(true)
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [isChatOpen, setIsChatOpen] = useState(false)
 
-  console.log("All params:", params)
-
   useEffect(() => {
     const fetchEpisodeData = async () => {
-      if (!animeSlug || !episodeId) {
-        console.log("Missing slug or episode ID", { animeSlug, episodeId })
-        setLoading(false)
-        return
-      }
+      if (!animeSlug || !episodeId) return
 
       try {
-        setLoading(true)
-        console.log("Fetching episode:", { animeSlug, episodeId: parseInt(episodeId) })
-        
         const response = await episodeAPI.showEpisode({
           anime_slug: animeSlug,
           episode_id: parseInt(episodeId)
         })
 
-        console.log("Episode API Response:", response)
-
         if (response.data.success && response.data.data) {
           const data = response.data.data
-          console.log("Episode data:", data)
           setEpisodeData(data.episode)
           setAnimeData(data.anime)
           setOtherEpisodes(data.other_episodes || [])
-        } else {
-          console.log("API returned no data or unsuccessful")
         }
       } catch (error) {
         console.error("Error fetching episode data:", error)
-      } finally {
-        setLoading(false)
       }
     }
 
@@ -73,80 +48,12 @@ export default function EpisodePage() {
   }, [animeSlug, episodeId])
 
   const handleShare = () => setIsShareModalOpen(true)
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 0:
-        return "Ongoing"
-      case 1:
-        return "Completed"
-      case 2:
-        return "Upcoming"
-      default:
-        return "Unknown"
-    }
-  }
-
-  const getCurrentEpisodeIndex = () => {
-    return otherEpisodes.findIndex(ep => ep.id === parseInt(episodeId))
-  }
-
-  const getPrevEpisode = () => {
-    const currentIndex = getCurrentEpisodeIndex()
-    if (currentIndex > 0) {
-      return otherEpisodes[currentIndex - 1]
-    }
-    return null
-  }
-
-  const getNextEpisode = () => {
-    const currentIndex = getCurrentEpisodeIndex()
-    if (currentIndex !== -1 && currentIndex < otherEpisodes.length - 1) {
-      return otherEpisodes[currentIndex + 1]
-    }
-    return null
-  }
-
-  const formatEpisodes = () => {
-    return otherEpisodes.map(ep => ({
-      id: ep.id,
-      episode_number: ep.order,
-      title: ep.title,
-      image: ep.thumbnail_url
-    }))
-  }
-
-  const downloadLinks = episodeData?.batchs ? Object.entries(episodeData.batchs)
-    .filter(([_, url]) => url !== null)
-    .map(([quality, url]) => ({
-      quality: quality.toUpperCase(),
-      url
-    })) : []
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background sm:pt-16">
-        <div className="hidden sm:block px-4 mb-4">
-          <Skeleton width={200} height={32} className="rounded-none" baseColor="#000000" highlightColor="#111111" />
-        </div>
-
-        <div className="fixed top-0 left-0 right-0 z-50 sm:relative sm:z-auto sm:px-4">
-          <div className="relative aspect-video bg-black overflow-hidden sm:aspect-[21/9] sm:mb-6">
-            <Skeleton className="w-full h-full rounded-none" baseColor="#000000" highlightColor="#111111" />
-          </div>
-        </div>
-
-        <div className="mt-[58.25vw] sm:mt-0 px-4">
-          <Skeleton width={300} height={36} className="rounded-none mb-2" baseColor="#000000" highlightColor="#111111" />
-          <div className="flex gap-4 mb-4">
-            <Skeleton width={80} height={20} className="rounded-none" baseColor="#000000" highlightColor="#111111" />
-            <Skeleton width={80} height={20} className="rounded-none" baseColor="#000000" highlightColor="#111111" />
-          </div>
-          <Skeleton count={3} className="rounded-none mb-2" baseColor="#000000" highlightColor="#111111" />
-        </div>
-      </div>
-    )
-  }
+  const getStatusText = (status) => status === 0 ? "Ongoing" : status === 1 ? "Completed" : status === 2 ? "Upcoming" : "Unknown"
+  const getCurrentEpisodeIndex = () => otherEpisodes.findIndex(ep => ep.id === parseInt(episodeId))
+  const getPrevEpisode = () => { const idx = getCurrentEpisodeIndex(); return idx > 0 ? otherEpisodes[idx - 1] : null }
+  const getNextEpisode = () => { const idx = getCurrentEpisodeIndex(); return idx !== -1 && idx < otherEpisodes.length - 1 ? otherEpisodes[idx + 1] : null }
+  const formatEpisodes = () => otherEpisodes.map(ep => ({ id: ep.id, episode_number: ep.order, title: ep.title, image: ep.thumbnail_url }))
+  const downloadLinks = episodeData?.batchs ? Object.entries(episodeData.batchs).filter(([_, url]) => url).map(([quality, url]) => ({ quality: quality.toUpperCase(), url })) : []
 
   if (!episodeData || !animeData) {
     return (
@@ -166,15 +73,14 @@ export default function EpisodePage() {
     <div className="min-h-screen bg-background sm:pt-16">
       <div className="hidden sm:block px-4 mb-4">
         <Link href={`/watch/${animeSlug}`}>
-          <button className="flex cursor-pointer items-center p-2 text-sm text-white hover:text-gray-300 rounded-none">
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            Back to {animeData.title}
+          <button className="flex items-center gap-2 cursor-pointer p-2 text-sm text-white hover:text-gray-300 rounded-none">
+            <ArrowLeftIcon className="w-4 h-4" /> Back to {animeData.title}
           </button>
         </Link>
       </div>
 
       <div className="fixed top-0 left-0 right-0 z-50 sm:relative sm:z-auto sm:px-4">
-        <div className="relative aspect-video bg-black overflow-hidden sm:aspect-[21/9] sm:mb-6">
+        <div className="relative aspect-video sm:aspect-[21/9] bg-black overflow-hidden sm:mb-6">
           {episodeData.streaming_full_url ? (
             <iframe
               src={episodeData.streaming_full_url}
@@ -190,8 +96,8 @@ export default function EpisodePage() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <button className="bg-primary hover:bg-primary/90 text-white rounded-full px-4 py-6 transition-all duration-300">
-                  <PlayIcon className="w-8 h-8" />
+                <button className="bg-primary hover:bg-primary/90 text-white rounded-full p-4 sm:p-6 transition-all duration-300">
+                  <PlayIcon className="w-6 h-6 sm:w-8 sm:h-8" />
                 </button>
               </div>
             </>
@@ -200,38 +106,49 @@ export default function EpisodePage() {
       </div>
 
       <div className="mt-[58.25vw] sm:mt-0 px-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 break-words">
           {animeData.title} - {episodeData.title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-4">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400 mb-4">
           <span>{animeData.total_episodes} Episodes</span>
-          {animeData.rating && (
-            <div className="flex items-center gap-1">
-              ⭐ <span>{parseFloat(animeData.rating).toFixed(1)}</span>
-            </div>
-          )}
+          {animeData.rating && <div className="flex items-center gap-1">⭐ {parseFloat(animeData.rating).toFixed(1)}</div>}
+          {animeData.release_date && <span>Released: {new Date(animeData.release_date).getFullYear()}</span>}
+
           <button
             onClick={handleShare}
-            className="flex items-center gap-1 px-3 py-1 border border-gray-600 text-gray-200 rounded-none hover:bg-gray-800 transition-all duration-300 cursor-pointer"
+            className="flex items-center cursor-pointer gap-1 px-2 py-1 sm:px-3 sm:py-2 border border-gray-600 text-gray-200 hover:bg-gray-800 transition-all duration-300 rounded-none"
           >
-            <ShareIcon className="w-4 h-4" />
+            <ShareIcon className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
-          {animeData.release_date && <span>Released: {new Date(animeData.release_date).getFullYear()}</span>}
+
+          {animeData.genres?.length > 0 && (
+            <div className="flex flex-wrap gap-1 sm:gap-2 mt-1">
+              {animeData.genres.map(g => (
+                <Link
+                  key={g.name}
+                  href={`/genre/${g.name.toLowerCase()}`}
+                  className="bg-primary/20 text-primary px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium hover:bg-primary/30 transition-colors whitespace-nowrap"
+                >
+                  {g.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 flex-wrap">
           {prevEpisode && (
             <Link href={`/watch/${animeSlug}/episode/${prevEpisode.id}`}>
-              <button className="flex items-center gap-1 px-2 py-1.5 text-sm border border-gray-600 text-gray-200 hover:bg-gray-700 rounded-none transition-all duration-300 cursor-pointer">
-                <ChevronLeftIcon className="w-3 h-3" /> Previous
+              <button className="flex cursor-pointer items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 text-sm border border-gray-600 text-gray-200 hover:bg-gray-700 rounded-none transition-all duration-300">
+                <ChevronLeftIcon className="w-3 h-3 sm:w-4 sm:h-4" /> Previous
               </button>
             </Link>
           )}
           {nextEpisode && (
             <Link href={`/watch/${animeSlug}/episode/${nextEpisode.id}`}>
-              <button className="flex items-center gap-1 px-2 py-1.5 text-sm border border-gray-600 text-gray-200 hover:bg-gray-700 rounded-none transition-all duration-300 cursor-pointer">
-                Next <ChevronRightIcon className="w-3 h-3" />
+              <button className="flex cursor-pointer items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 text-sm border border-gray-600 text-gray-200 hover:bg-gray-700 rounded-none transition-all duration-300">
+                Next <ChevronRightIcon className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
             </Link>
           )}
@@ -245,11 +162,12 @@ export default function EpisodePage() {
           totalEpisodes={animeData.total_episodes}
           releaseDate={animeData.release_date}
           videoId={animeSlug}
+          animeSlug={animeSlug}
         />
 
-        <EpisodesList 
-          episodes={formatEpisodes()} 
-          videoId={animeSlug} 
+        <EpisodesList
+          episodes={formatEpisodes()}
+          videoId={animeSlug}
           currentEpisodeId={parseInt(episodeId)}
           animeTitle={animeData.title}
         />
@@ -269,7 +187,7 @@ export default function EpisodePage() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full rounded-none cursor-pointer items-center justify-center flex bg-green-700 hover:bg-green-600 py-2 text-white gap-2 transition-colors duration-300"
+                      className="w-full flex items-center justify-center bg-green-700 hover:bg-green-600 py-2 gap-2 text-white transition-colors duration-300 rounded-none"
                     >
                       <ArrowDownTrayIcon className="w-4 h-4" />
                       Download {link.quality}
@@ -281,7 +199,10 @@ export default function EpisodePage() {
           </div>
         )}
 
-        <CommentsSection comments={[]} />
+        <CommentsSection
+          animeSlug={animeSlug}
+          episodeId={parseInt(episodeId)}
+        />
       </div>
 
       <ShareModal
