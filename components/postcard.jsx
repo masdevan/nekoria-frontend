@@ -1,7 +1,7 @@
 import { PlayIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
 
-export function VideoCard({ title, image, duration, isNew, rating, href, disableLink }) {
+export function Postcard({ title, image, isNew, rating, href, disableLink }) {
   const videoId = title
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "-")
