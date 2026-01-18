@@ -4,5 +4,6 @@ export const bookmarkAPI = {
     // BOOKMARK ROUTES
     getBookmark: (data) => axios.post('/public/bookmark/index', data),
     createBookmark: (data) => axios.post('/public/bookmark', data),
-    getBookmark: (id) => axios.delete(`/public/bookmark/${id}/delete`),
+    checkBookmark: (data) => axios.post('/public/bookmark/check', data),
+    deleteBookmark: (id) => axios.delete(`/public/bookmark/${id}/delete`),
 }

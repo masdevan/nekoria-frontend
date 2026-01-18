@@ -198,7 +198,7 @@ export function SearchModal() {
       </button>
 
       {isOpen && (
-        <div className="fixed top-0 -right-5 left-0 bottom-0 bg-black/50 z-50 flex items-start justify-center">
+        <div className="fixed top-0 -right-5 left-0 bottom-0 bg-black/50 flex items-start justify-center z-90">
           <div ref={modalRef} className="bg-card p-4 sm:p-6 w-full max-w-2xl min-h-screen overflow-hidden flex flex-col rounded-none">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base sm:text-lg font-semibold">Search</h2>

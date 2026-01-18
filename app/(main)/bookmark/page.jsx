@@ -1,17 +1,13 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { VideoCard } from "@/components/video-card"
-import { animeAPI, genreAPI } from "@/services/index"
+import { bookmarkAPI } from "@/services/index"
 import Skeleton from "react-loading-skeleton"
 import "react-loading-skeleton/dist/skeleton.css"
 
-export default function GenrePage() {
-  const params = useParams()
-  const slug = params.slug
-  
+export default function BookmarksPage() {
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -19,39 +15,10 @@ export default function GenrePage() {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [totalVideos, setTotalVideos] = useState(0)
-  const [genreId, setGenreId] = useState(null)
-  const [genreName, setGenreName] = useState("")
 
   const observerTarget = useRef(null)
-  
-  const fetchGenreId = async () => {
-    try {
-      const response = await genreAPI.getGenre({})
-      
-      if (response.data.success) {
-        const genre = response.data.data.find(g => 
-          g.slug === slug || g.name.toLowerCase().replace(/\s+/g, '-') === slug
-        )
-        
-        if (genre) {
-          setGenreId(genre.id)
-          setGenreName(genre.name)
-          return genre.id
-        } else {
-          setError("Genre not found")
-          setLoading(false)
-          return null
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching genre:", err)
-      setError("Failed to load genre")
-      setLoading(false)
-      return null
-    }
-  }
 
-  const fetchGenreData = async (pageNum, gId) => {
+  const fetchBookmarks = async (pageNum) => {
     try {
       if (pageNum === 1) {
         setLoading(true)
@@ -60,20 +27,21 @@ export default function GenrePage() {
       }
       setError(null)
 
-      const response = await animeAPI.filterAnime({
-        genre_ids: [gId],
+      const response = await bookmarkAPI.getBookmark({
         page: pageNum,
         per_page: 24
       })
 
       if (response.data.success) {
-        const newVideos = response.data.data.map(anime => ({
-          title: anime.title,
-          image: anime.poster_url || "/placeholder.png",
-          rating: parseFloat(anime.rating) || 0,
+        const newVideos = response.data.data.map(bookmark => ({
+          bookmarkId: bookmark.id,
+          title: bookmark.title,
+          image: bookmark.poster_url || "/placeholder.png",
+          duration: "24:15",
+          rating: parseFloat(bookmark.rating) || 0,
           isNew: false,
-          href: `/watch/${anime.slug}`,
-          slug: anime.slug
+          href: `/watch/${bookmark.slug}`,
+          slug: bookmark.slug
         }))
 
         if (pageNum === 1) {
@@ -86,8 +54,14 @@ export default function GenrePage() {
         setHasMore(response.data.meta.current_page < response.data.meta.last_page)
       }
     } catch (err) {
-      console.error("Error fetching genre data:", err)
-      setError("Failed to load videos. Please try again.")
+      console.error("Error fetching bookmarks:", err)
+      
+      // Handle unauthorized (not logged in)
+      if (err.response?.status === 401) {
+        setError("Please login to view your bookmarks")
+      } else {
+        setError("Failed to load bookmarks. Please try again.")
+      }
     } finally {
       setLoading(false)
       setLoadingMore(false)
@@ -95,27 +69,16 @@ export default function GenrePage() {
   }
 
   useEffect(() => {
-    const initData = async () => {
-      setPage(1)
-      setVideos([])
-      setHasMore(true)
-      
-      const gId = await fetchGenreId()
-      if (gId) {
-        fetchGenreData(1, gId)
-      }
-    }
-    
-    initData()
-  }, [slug])
+    fetchBookmarks(1)
+  }, [])
 
   const loadMore = useCallback(() => {
-    if (hasMore && !loadingMore && !loading && genreId) {
+    if (hasMore && !loadingMore && !loading) {
       const nextPage = page + 1
       setPage(nextPage)
-      fetchGenreData(nextPage, genreId)
+      fetchBookmarks(nextPage)
     }
-  }, [hasMore, loadingMore, loading, page, genreId])
+  }, [hasMore, loadingMore, loading, page])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -137,6 +100,20 @@ export default function GenrePage() {
       }
     }
   }, [loadMore])
+
+  const handleRemoveBookmark = async (bookmarkId) => {
+    try {
+      await bookmarkAPI.deleteBookmark(bookmarkId)
+      
+      // Remove from local state
+      setVideos(prev => prev.filter(v => v.bookmarkId !== bookmarkId))
+      setTotalVideos(prev => prev - 1)
+      
+    } catch (err) {
+      console.error("Error removing bookmark:", err)
+      alert("Failed to remove bookmark")
+    }
+  }
 
   const SkeletonCard = () => (
     <div className="flex flex-col">
@@ -189,22 +166,48 @@ export default function GenrePage() {
     )
   }
 
-  if (error && videos.length === 0) {
+  if (error) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <main className="pt-20 pb-8 px-4">
           <div className="flex flex-col justify-center items-center h-64">
             <div className="text-red-500 mb-4">{error}</div>
-            <button
-              onClick={async () => {
-                const gId = await fetchGenreId()
-                if (gId) fetchGenreData(1, gId)
-              }}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-            >
-              Retry
-            </button>
+            {error !== "Please login to view your bookmarks" && (
+              <button
+                onClick={() => {
+                  setPage(1)
+                  fetchBookmarks(1)
+                }}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (videos.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-20 pb-8 px-4">
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+              My Bookmarks
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              0 saved videos
+            </p>
+          </div>
+          <div className="flex flex-col justify-center items-center h-64">
+            <p className="text-muted-foreground text-lg">No bookmarks yet</p>
+            <p className="text-muted-foreground text-sm mt-2">
+              Start adding anime to your bookmarks!
+            </p>
           </div>
         </main>
       </div>
@@ -218,10 +221,10 @@ export default function GenrePage() {
       <main className="pt-20 pb-8 px-4">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            {genreName || slug?.replace(/-/g, ' ')}
+            My Bookmarks
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            {totalVideos} videos found
+            {totalVideos} saved videos
           </p>
         </div>
 
@@ -233,15 +236,26 @@ export default function GenrePage() {
           "
         >
           {videos.map((video, index) => (
-            <VideoCard
-              key={`${video.slug}-${index}`}
-              title={video.title}
-              image={video.image}
-              duration={video.duration}
-              rating={video.rating}
-              isNew={video.isNew}
-              href={video.href}
-            />
+            <div key={`${video.slug}-${index}`} className="relative group">
+              <VideoCard
+                title={video.title}
+                image={video.image}
+                duration={video.duration}
+                rating={video.rating}
+                isNew={video.isNew}
+                href={video.href}
+              />
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleRemoveBookmark(video.bookmarkId)
+                }}
+                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+                title="Remove bookmark"
+              >
+                ✕
+              </button>
+            </div>
           ))}
         </div>
 
@@ -263,7 +277,7 @@ export default function GenrePage() {
 
         {!hasMore && videos.length > 0 && (
           <div className="text-center mt-8 text-muted-foreground">
-            No more videos to load
+            No more bookmarks to load
           </div>
         )}
       </main>

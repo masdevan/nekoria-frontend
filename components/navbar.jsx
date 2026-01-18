@@ -7,6 +7,7 @@ import { MobileSidebar } from "./mobile-sidebar"
 import { FloatingChat } from "./floating-chat"
 import { SearchModal } from "./search-modal"
 import { Bars3Icon, BookmarkIcon, ChatBubbleOvalLeftIcon } from "@heroicons/react/24/outline"
+import { navbarMenu } from "@/utils/header"
 
 export function Navbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -16,7 +17,7 @@ export function Navbar() {
     <>
       <nav className="fixed top-0 left-0 lg:left-[60px] right-0 z-50 bg-background border-b border-border px-4 py-3">
         <div className="mx-auto flex items-center justify-between">
-          
+
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-3">
               <button
@@ -35,12 +36,15 @@ export function Navbar() {
             </div>
 
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="#" className="text-foreground hover:text-primary transition-colors">Home</Link>
-              <Link href="#" className="text-foreground hover:text-primary transition-colors">Live</Link>
-              <Link href="#" className="text-foreground hover:text-primary transition-colors">TV Show</Link>
-              <Link href="#" className="text-foreground hover:text-primary transition-colors">Sports</Link>
-              <Link href="#" className="text-foreground hover:text-primary transition-colors">Kids</Link>
-              <Link href="#" className="text-foreground hover:text-primary transition-colors">News</Link>
+              {navbarMenu.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-foreground hover:text-primary transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -48,7 +52,7 @@ export function Navbar() {
             <div className="flex items-center space-x-2 md:space-x-4">
               <SearchModal />
 
-              <Link href="/bookmarks" className="hidden md:block">
+              <Link href="/bookmark" className="hidden md:block">
                 <button className="p-2 rounded hover:bg-muted/50 transition-colors cursor-pointer">
                   <BookmarkIcon className="w-5 h-5 text-foreground" />
                 </button>

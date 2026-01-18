@@ -74,13 +74,12 @@ export default function Home() {
 
           if (response.data.success && response.data.data && response.data.data.length > 0) {
             const formattedData = response.data.data.map(anime => ({
-              id: anime.id,
               title: anime.title,
               image: anime.poster_large_url || anime.poster_url,
-              slug: anime.slug,
+              href: `/watch/${anime.slug}`,
               rating: parseFloat(anime.rating) || 0,
-              totalEpisodes: anime.total_episodes,
-              status: anime.status
+              duration: "24:15",
+              isNew: false
             }))
 
             newSections.push({
@@ -104,13 +103,12 @@ export default function Home() {
 
           if (response.data.success && response.data.data && response.data.data.length > 0) {
             const formattedData = response.data.data.map(anime => ({
-              id: anime.id,
               title: anime.title,
               image: anime.poster_large_url || anime.poster_url,
-              slug: anime.slug,
+              href: `/watch/${anime.slug}`,
               rating: parseFloat(anime.rating) || 0,
-              totalEpisodes: anime.total_episodes,
-              status: anime.status
+              duration: "24:15",
+              isNew: false
             }))
 
             newSections.push({
@@ -160,13 +158,12 @@ export default function Home() {
 
           if (response.data.success && response.data.data && response.data.data.length > 0) {
             const formattedData = response.data.data.map(anime => ({
-              id: anime.id,
               title: anime.title,
               image: anime.poster_large_url || anime.poster_url,
-              slug: anime.slug,
+              href: `/watch/${anime.slug}`,
               rating: parseFloat(anime.rating) || 0,
-              totalEpisodes: anime.total_episodes,
-              status: anime.status
+              duration: "24:15",
+              isNew: false
             }))
 
             newSections.push({
@@ -190,13 +187,12 @@ export default function Home() {
 
           if (response.data.success && response.data.data && response.data.data.length > 0) {
             const formattedData = response.data.data.map(anime => ({
-              id: anime.id,
               title: anime.title,
               image: anime.poster_large_url || anime.poster_url,
-              slug: anime.slug,
+              href: `/watch/${anime.slug}`,
               rating: parseFloat(anime.rating) || 0,
-              totalEpisodes: anime.total_episodes,
-              status: anime.status
+              duration: "24:15",
+              isNew: false
             }))
 
             newSections.push({

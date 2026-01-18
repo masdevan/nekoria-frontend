@@ -146,6 +146,7 @@ export function ContentSection({ title, videos }) {
               duration={video.duration}
               isNew={video.isNew}
               rating={video.rating}
+              href={video.href}
             />
           </div>
         ))}

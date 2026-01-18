@@ -2,6 +2,7 @@
 
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import Image from "next/image"
+import { navbarMenu } from "@/utils/header"
 
 export function MobileSidebar({ isOpen, onClose }) {
   if (!isOpen) return null
@@ -17,7 +18,7 @@ export function MobileSidebar({ isOpen, onClose }) {
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center space-x-2">
             <Image
-              src="/nekoria-logo.png"
+              src="/icons/logo.png"
               alt="Nekoria Logo"
               width={24}
               height={24}
@@ -38,14 +39,14 @@ export function MobileSidebar({ isOpen, onClose }) {
 
         <div className="p-4">
           <nav className="space-y-2">
-            {["Home", "Live", "TV Show", "Sports", "Kids", "News"].map((item) => (
-              <a
-                key={item}
-                href="#"
+            {navbarMenu.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
                 className="block text-foreground hover:text-primary transition-colors py-1"
               >
-                {item}
-              </a>
+                {item.label}
+              </Link>
             ))}
           </nav>
         </div>

@@ -33,35 +33,30 @@ export function MobileBottomBar() {
     <>
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border md:hidden">
         <div className="grid grid-cols-5 items-center px-2 py-2 max-w-md mx-auto">
-          {/* Random */}
           <button onClick={handleRandomAnime} className="flex justify-center cursor-pointer">
             <div className="p-2 rounded-xl hover:bg-muted/80 transition-all duration-200 active:scale-95">
               <ArrowsRightLeftIcon className="h-5 w-5 text-muted-foreground" />
             </div>
           </button>
 
-          {/* Bookmark */}
-          <Link href="/bookmarks" className="flex justify-center cursor-pointer">
+          <Link href="/bookmark" className="flex justify-center cursor-pointer">
             <div className="p-2 rounded-xl hover:bg-muted/80 transition-all duration-200 active:scale-95">
-              <BookmarkIcon className={`h-5 w-5 ${isActive("/bookmarks") ? "text-primary" : "text-muted-foreground"}`} />
+              <BookmarkIcon className={`h-5 w-5 ${isActive("/bookmark") ? "text-primary" : "text-muted-foreground"}`} />
             </div>
           </Link>
 
-          {/* Home - Center */}
           <Link href="/" className="flex justify-center cursor-pointer">
             <div className="p-2.5 rounded-full bg-primary hover:bg-primary/90 transition-all duration-200 active:scale-95 shadow-lg">
               <HomeIcon className="h-6 w-6 text-primary-foreground" />
             </div>
           </Link>
 
-          {/* Chat */}
           <button onClick={() => setIsChatOpen(true)} className="flex justify-center cursor-pointer">
             <div className="p-2 rounded-xl hover:bg-muted/80 transition-all duration-200 active:scale-95">
               <ChatBubbleOvalLeftIcon className="h-5 w-5 text-muted-foreground" />
             </div>
           </button>
 
-          {/* Help */}
           <Link href="/help" className="flex justify-center cursor-pointer">
             <div className="p-2 rounded-xl hover:bg-muted/80 transition-all duration-200 active:scale-95">
               <QuestionMarkCircleIcon className={`h-5 w-5 ${isActive("/help") ? "text-primary" : "text-muted-foreground"}`} />

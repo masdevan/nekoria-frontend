@@ -5,71 +5,61 @@ export const authOptions = {
     session: {
         strategy: "jwt",
     },
-
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
         CredentialsProvider({
-            name: "Credentials",
+            id: "credentials",
+            name: "Login Key",
             credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" },
+                key: { label: "Login Key", type: "text" },
             },
-
             async authorize(credentials) {
-                try {
-                    const res = await fetch(
-                        `${process.env.NEXT_PUBLIC_BE_AUTH_URL}/auth/login`,
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                email: credentials?.email,
-                                password: credentials?.password,
-                            }),
-                        }
-                    )
+                if (!credentials?.key) return null
 
-                    if (!res.ok) return null
+                const loginKey = credentials.key
 
-                    const data = await res.json()
+                if (loginKey.length !== 16) return null
 
-                    if (!data?.user || !data?.token) return null
-
-                    return {
-                        id: data.user.id,
-                        name: data.user.name,
-                        email: data.user.email,
-                        token: data.token,
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_BE_AUTH_URL}/auth/login`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                        },
+                        body: JSON.stringify({ key: loginKey }),
                     }
-                } catch (error) {
-                    console.error("AUTH ERROR:", error)
-                    return null
+                )
+
+                if (!res.ok) return null
+
+                const data = await res.json()
+
+                if (!data?.token) return null
+
+                return {
+                    id: "guest",
+                    token: data.token,
                 }
-            }
+            },
         }),
     ],
-
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
                 token.accessToken = user.token
-                token.user = user
             }
             return token
         },
-
         async session({ session, token }) {
-            if (!token?.accessToken) return null
-
-            session.user = token.user
             session.accessToken = token.accessToken
             return session
-        }
+        },
     },
-
     pages: {
         signIn: "/auth/login",
+        error: "/auth/login",
     },
 }
 
